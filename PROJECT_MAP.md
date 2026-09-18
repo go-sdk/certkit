@@ -28,7 +28,8 @@ certkit/
 ├── password.go                      容器和私钥密码选择
 ├── roots.go                         系统、Mozilla 和自定义信任根
 ├── tls.go                           TLS 1.0–1.3 分版本探测
-├── *_test.go                        本地确定性单元测试和显式公网互操作测试
+├── *_test.go                        本地确定性单元测试
+├── network_*_test.go                显式公网证书和格式互操作测试
 ├── internal/ber/                    Mozilla PKCS7 BER 转换器及本地边界修复
 ├── internal/ocsp/                   x/crypto OCSP 实现及 smx509/SM2 适配
 └── internal/pkcs12/                 emmansun 国密实现及补入的输入边界修复
@@ -118,11 +119,14 @@ internal/pkcs12 ──> emmansun/go-pkcs12 v0.4.2
 - `formats_test.go` 覆盖 PEM、DER、PKCS7、PKCS12、JKS、密码错误部分结果和不支持格式。
 - `tls_test.go` 使用本地 TLS 服务覆盖分版本握手、SNI 和服务端链完整性。
 - `network_test.go` 仅在显式设置 `CERTKIT_NETWORK_TESTS=1` 时访问公开 CA 测试站点。
+- `network_certificate_test.go` 下载 CA 官方 PEM/DER、NuGet PKCS7 和 Sigstore 代码签名证书，并使用公开证书验证 PKCS12/JKS truststore。
+- `network_format_test.go` 验证 badssl 公开 PEM/PFX 和固定版本 Java JKS 样本，不把样本内容写入仓库或测试日志。
+- `network_helpers_test.go` 统一控制公网测试开关、超时、HTTP 状态和响应大小。
 - `internal` 测试覆盖 BER 边界和 PKCS12 输入安全补丁，不输出私钥或完整证书材料。
 
 ## 验证边界
 
 - `make lint` 会先执行 `go mod tidy`，然后运行 golangci-lint。
 - `make test` 使用竞态检测运行本地确定性测试，不访问外部服务。
-- `make test-network` 会访问公开 TLS 和 CRL 服务，其失败不能单独证明代码回归。
+- `make test-network` 会访问公开 TLS、CRL、CA 仓库和格式样本服务，其失败不能单独证明代码回归。
 - 静态检查和编译成功不能证明公网 CA、操作系统根库或其他语言密钥库的运行时兼容性。

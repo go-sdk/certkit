@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/rsa"
-	"os"
 	"testing"
 	"time"
 )
@@ -18,9 +17,7 @@ type networkDemoExpectation struct {
 }
 
 func TestNetworkPublicCADemoSites(t *testing.T) {
-	if os.Getenv("CERTKIT_NETWORK_TESTS") != "1" {
-		t.Skip("set CERTKIT_NETWORK_TESTS=1 to run public CA interoperability tests")
-	}
+	requireNetworkTests(t)
 	cases := []networkDemoExpectation{
 		{
 			name:      "digicert-rsa-valid",

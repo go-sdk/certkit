@@ -38,8 +38,9 @@
 - 默认单元测试不得访问真实外部接口。证书链、CRL、OCSP、格式转换和 TLS 握手使用进程内生成证书及本地测试服务。
 - 测试不得把私钥、密码或完整 PEM 内容输出到日志和失败信息中。
 - 固定时间相关断言，避免依赖测试运行当天的时间。
-- DigiCert、Let's Encrypt 和 Amazon Trust Services 的公开 demo 域名只用于显式启用的互操作测试。普通 `make test` 必须跳过这些用例。
-- 互操作测试通过 `CERTKIT_NETWORK_TESTS=1 make test-network` 运行；它验证的是运行时公网状态，失败时需要区分代码回归、网络限制和上游证书轮换。
+- DigiCert、Let's Encrypt 和 Amazon Trust Services 的公开 demo 域名，以及 CA 官方仓库、NuGet、Sigstore、badssl 和上游格式样本，只用于显式启用的互操作测试。普通 `make test` 必须跳过这些用例。
+- 公网格式样本不得写入仓库或输出完整内容。公开测试私钥只允许在测试进程内解析，用后释放，不得输出或另行保存。
+- 互操作测试通过 `CERTKIT_NETWORK_TESTS=1 make test-network` 运行；它验证的是运行时公网状态、真实证书解析和外部格式兼容性，失败时需要区分代码回归、网络限制、上游证书轮换和样本迁移。
 - 修改后依次运行 `make lint` 和 `make test`，并检查 `git diff`、`git diff --check` 和工作区状态。涉及在线兼容性且环境允许时再运行 `make test-network`。
 - 不执行部署、发布、上传或 `git push`；本地提交需要用户明确要求。
 

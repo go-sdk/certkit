@@ -182,13 +182,24 @@ make test
 
 它覆盖 RSA、ECDSA、SM2 CA 签发，交叉签名和多路径建链，PEM、DER、PKCS7、PKCS12、JKS 往返，密码错误的部分结果，CRL、OCSP、过期证书以及 TLS SNI 和不完整链检测。
 
-公网互操作测试使用 [DigiCert chain demos](https://knowledge.digicert.com/general-information/digicert-trusted-root-authority-certificates)、[Let's Encrypt test certificates](https://letsencrypt.org/2026/04/10/test-sites/) 和 [Amazon Trust Services test URLs](https://www.amazontrust.com/repository/) 官方 demo 域名，默认跳过，需要显式启用：
+公网互操作测试默认跳过，需要显式启用：
 
 ```bash
 CERTKIT_NETWORK_TESTS=1 make test-network
 ```
 
-该测试会访问外部 TLS 和 CRL 服务。失败可能来自本地网络限制或上游证书轮换，不能直接等同于单元测试回归。
+测试内容包括：
+
+- 使用 [DigiCert chain demos](https://knowledge.digicert.com/general-information/digicert-trusted-root-authority-certificates)、[Let's Encrypt test certificates](https://letsencrypt.org/2026/04/10/test-sites/)
+和 [Amazon Trust Services test URLs](https://www.amazontrust.com/repository/) 验证公网 TLS 链、RSA/ECDSA、过期和吊销状态；
+- 从 [Apple PKI](https://www.apple.com/certificateauthority/)、[DigiCert](https://knowledge.digicert.com/general-information/digicert-trusted-root-authority-certificates)
+  和 [Microsoft PKI](https://www.microsoft.com/pkiops/docs/repository.htm) 官方仓库下载公开 PEM/DER 根证书及中间证书，验证自动识别、X.509 字段和 CA 属性；
+- 将公开 CA 证书编码为 PKCS12 和 JKS truststore 后重新解析；
+- 从固定版本 [NuGet](https://learn.microsoft.com/nuget/reference/signed-packages-reference) 包的 `.signature.p7s` 解析真实 PKCS7 代码签名证书；
+- 从固定版本 [Cosign](https://docs.sigstore.dev/cosign/system_config/installation/) Sigstore bundle 解析 Fulcio DER 代码签名证书；
+- 解析 [badssl](https://badssl.com/download/) 公开客户端 PEM/PFX 和固定版本 [`keystore-go`](https://github.com/pavlo-v-chernykh/keystore-go) Java JKS 样本。
+
+公网样本只保存在测试进程内，不写入仓库或日志。失败可能来自本地网络限制、证书轮换、样本迁移或代码回归，需要结合失败来源判断。
 
 GitHub Actions 会在 lint 和默认测试通过后执行该测试；公网互操作步骤允许失败并产生 warning，不阻断工作流。
 
@@ -204,4 +215,4 @@ make test          # 使用竞态检测运行本地确定性测试
 make test-network  # 访问公开 CA 测试站点执行互操作测试
 ```
 
-默认测试不得访问外网；`make test-network` 的结果受本地网络、公开 CA 服务状态和上游证书轮换影响。
+默认测试不得访问外网；`make test-network` 的结果受本地网络、公开 CA 服务状态、证书轮换和外部样本可用性影响。
