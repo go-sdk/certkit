@@ -1,7 +1,7 @@
 github.com/emmansun/gmsm v0.44.1 h1:zDTkdtLWFG0vCbhPV+k9pte14tix/eK71At9Iai9fP4=
 github.com/emmansun/gmsm v0.44.1/go.mod h1:p6RIUta0/KboFHrOxr1x8q+pd8RZtdaTO7XNp0RmMQM=
-github.com/go-sdk/core v1.5.1 h1:ELtvg6VEXoKH2r6KLTOx6Em0C4GKJKhpZDTwYmOtSnc=
-github.com/go-sdk/core v1.5.1/go.mod h1:xxWmM4yoJ7hpm1h56aqLTleMpSidRrwBXEPbOSfz4Pc=
+github.com/go-sdk/core v1.5.3 h1:kG4v4/BjTOMC6S1VPciOk92qmtktpt2xdHTg8pIOpQI=
+github.com/go-sdk/core v1.5.3/go.mod h1:xxWmM4yoJ7hpm1h56aqLTleMpSidRrwBXEPbOSfz4Pc=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
