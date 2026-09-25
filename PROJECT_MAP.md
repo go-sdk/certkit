@@ -18,6 +18,7 @@ certkit/
 ├── detect.go                        基于文件结构和 OID 的格式识别
 ├── encode.go                        统一编码入口和转换报告
 ├── encode_*.go                      PEM、DER、PKCS7、PKCS12、JKS 输出
+├── entry_pem.go                     Entry 证书链和私钥的独立 PEM 输出
 ├── error.go                         可由 errx.Is 判断的公共哨兵错误
 ├── format.go                        格式、编码和识别置信度
 ├── key.go                           RSA、ECDSA 和 SM2 私钥生成

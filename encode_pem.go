@@ -12,6 +12,10 @@ import (
 func (s *Store) encodePEM(options EncodeOptions, report *ConversionReport) ([]byte, error) {
 	var output bytes.Buffer
 	for _, cert := range s.Certificates {
+		if options.ExcludeRootCertificates && certificateRole(cert.Certificate) == CertificateRoleRoot {
+			report.DiscardedCertificates++
+			continue
+		}
 		if err := pem.Encode(&output, &pem.Block{Type: "CERTIFICATE", Bytes: cert.Certificate.Raw}); err != nil {
 			return nil, errx.Wrap(err, "encode pem certificate")
 		}

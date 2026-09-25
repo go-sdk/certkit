@@ -120,6 +120,20 @@ server, err := certkit.IssueCertificate(intermediate, certkit.CertificateOptions
 })
 ```
 
+`Entry` 可以分别输出不含根证书的部署链、包含根证书的完整链以及 PKCS#8 私钥：
+
+```go
+chainPEM, err := server.CertificateChainPEM(certkit.EncodeOptions{
+	ExcludeRootCertificates: true,
+})
+chainWithRootPEM, err := server.CertificateChainPEM(certkit.EncodeOptions{})
+privateKeyPEM, err := server.PrivateKeyPEM(certkit.EncodeOptions{})
+```
+
+两种证书链均保持叶子证书、中间 CA、根 CA 的既有顺序；无根链只剔除自签根证书。
+私钥默认不加密；可以通过 `EncryptPEMPrivateKey` 和 `Password` 输出加密私钥。私钥输出包含敏感材料，
+调用方负责限制访问并安全保存。
+
 也可以使用 `CreateCertificateRequest` 创建 CSR，再用 `SignCertificateRequest` 签发外部公钥。
 
 ## CRL 和 OCSP

@@ -15,16 +15,17 @@ const (
 	PKCS12ProfileShangMi PKCS12Profile = "shangmi"
 )
 
-// EncodeOptions 配置目标格式的密码、alias 和有损转换策略。
+// EncodeOptions 配置目标格式的密码、alias、PEM 根证书选择和有损转换策略。
 type EncodeOptions struct {
-	Password             []byte
-	KeyPassword          []byte
-	KeyPasswords         map[string][]byte
-	Alias                string
-	Aliases              map[string]string
-	AllowLossy           bool
-	EncryptPEMPrivateKey bool
-	PKCS12Profile        PKCS12Profile
+	Password                []byte
+	KeyPassword             []byte
+	KeyPasswords            map[string][]byte
+	Alias                   string
+	Aliases                 map[string]string
+	AllowLossy              bool
+	EncryptPEMPrivateKey    bool
+	ExcludeRootCertificates bool
+	PKCS12Profile           PKCS12Profile
 }
 
 // ConversionReport 描述编码结果和被丢弃的对象。

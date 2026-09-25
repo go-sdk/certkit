@@ -24,6 +24,18 @@ func TestFormatRoundTrips(t *testing.T) {
 		if len(opened.Certificates) != 3 || len(opened.PrivateKeys) != 1 || report.CertificatesWritten != 3 || report.PrivateKeysWritten != 1 {
 			t.Fatalf("unexpected PEM round trip: certs=%d keys=%d report=%+v", len(opened.Certificates), len(opened.PrivateKeys), report)
 		}
+
+		withoutRoot, report, err := store.Encode(FormatPEM, EncodeOptions{ExcludeRootCertificates: true})
+		if err != nil {
+			t.Fatal(err)
+		}
+		openedWithoutRoot, err := Open(withoutRoot, OpenOptions{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(openedWithoutRoot.Certificates) != 2 || report.CertificatesWritten != 2 || report.DiscardedCertificates != 1 {
+			t.Fatalf("unexpected PEM without root: certs=%d report=%+v", len(openedWithoutRoot.Certificates), report)
+		}
 	})
 	t.Run("encrypted-pem", func(t *testing.T) {
 		password := []byte("pem-password")
