@@ -62,6 +62,30 @@ report, err := store.Add(otherData, certkit.OpenOptions{Password: otherPassword}
 
 证书和私钥通过公钥 DER 指纹匹配。证书链使用签名、Issuer/Subject 和 AKI/SKI 关系排序。
 
+证书链和私钥位于两个独立文件时，可以分别解析并获得匹配后的条目：
+
+```go
+entry, err := certkit.OpenEntry(certificateData, privateKeyData, certkit.OpenOptions{
+	Password: privateKeyPassword,
+})
+if err != nil {
+	return err
+}
+
+certificatePEM, err := entry.CertificateChainPEM(certkit.EncodeOptions{
+	ExcludeRootCertificates: true,
+})
+if err != nil {
+	return err
+}
+privateKeyPEM, err := entry.PrivateKeyPEM(certkit.EncodeOptions{})
+if err != nil {
+	return err
+}
+```
+
+`OpenEntry` 要求私钥输入中恰好包含一把可用私钥，并通过公钥判断它是否与证书链中的证书匹配；不匹配时返回 `ErrKeyMismatch`。返回条目的证书链按叶子证书、中间 CA 到根 CA 排序。输出私钥统一使用 PKCS#8 PEM。
+
 ## JKS 密码和别名
 
 - 显式提供 store password 后，只使用该密码，不回退到其他候选。

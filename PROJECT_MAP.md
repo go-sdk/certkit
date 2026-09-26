@@ -48,6 +48,8 @@ Open(data, OpenOptions)
     -> Store
 ```
 
+`OpenEntry(certificateData, privateKeyData, OpenOptions)` 分别解析证书链和单把私钥，通过公钥匹配后返回可直接输出证书链和私钥的 `Entry`；不匹配时返回 `ErrKeyMismatch`。
+
 JKS 首先验证 store digest。密码错误时，已经安全读取的证书条目进入部分 `Store`，私钥保持不可用，并返回包装 `ErrPassword` 的错误。结构损坏不会作为密码错误处理，也不会返回未确认边界的数据。
 
 ## 编码链路

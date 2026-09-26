@@ -95,6 +95,42 @@ func Open(data []byte, options OpenOptions) (*Store, error) {
 	return store, err
 }
 
+// OpenEntry 分别解析证书链和私钥，并返回公钥匹配的条目。
+func OpenEntry(certificateData, privateKeyData []byte, options OpenOptions) (*Entry, error) {
+	certificateStore, err := Open(certificateData, options)
+	if err != nil {
+		return nil, errx.Wrap(err, "open certificate chain")
+	}
+	if len(certificateStore.Certificates) == 0 {
+		return nil, ErrNoCertificate
+	}
+
+	privateKeyStore, err := Open(privateKeyData, options)
+	if err != nil {
+		return nil, errx.Wrap(err, "open private key")
+	}
+	if len(privateKeyStore.PrivateKeys) == 0 {
+		return nil, ErrNoPrivateKey
+	}
+	if len(privateKeyStore.PrivateKeys) != 1 {
+		return nil, errx.Wrapf(ErrInvalidData, "private key input contains %d private keys", len(privateKeyStore.PrivateKeys))
+	}
+
+	privateKey := privateKeyStore.PrivateKeys[0]
+	for _, cert := range certificateStore.Certificates {
+		if !publicKeysEqual(privateKey.Signer.Public(), cert.Certificate.PublicKey) {
+			continue
+		}
+		return &Entry{
+			Alias:            defaultAlias(cert.Certificate),
+			PrivateKey:       privateKey,
+			PrivateKeyStatus: PrivateKeyStatusAvailable,
+			Chain:            buildCertificateChain(cert, certificateStore.Certificates),
+		}, nil
+	}
+	return nil, ErrKeyMismatch
+}
+
 // Add 解析输入并将对象合并到当前 Store。
 func (s *Store) Add(data []byte, options OpenOptions) (*MergeReport, error) {
 	other, openErr := Open(data, options)
