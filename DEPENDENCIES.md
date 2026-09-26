@@ -2,6 +2,18 @@
 
 本文记录证书格式和验证相关依赖的选型边界，便于升级时重新核对安全修复和兼容性。
 
+## TLCP
+
+TLCP 1.1 使用 `gitee.com/Trisia/gotlcp` v1.5.0。该实现基于
+`github.com/emmansun/gmsm` 的 `smx509`，可直接复用 certkit 的 SM2 证书模型，
+并支持在 ClientHello 中携带 SNI、服务端双证书、握手上下文取消及 SM4-GCM/CBC
+密码套件。
+
+certkit 仅使用其客户端握手和连接状态，不依赖内部协议结构。握手阶段跳过依赖库的
+证书信任验证以收集服务端证书，之后由 certkit 分别验证签名证书和加密证书的主机名、
+信任链及服务端链完整性。升级时应重新核对 SNI 编码、双证书顺序、证书链顺序、
+`HandshakeContext` 取消行为和 `ConnectionState` 字段语义。
+
 ## PKCS12
 
 标准 RSA 和 ECDSA PKCS12 使用 `software.sslmate.com/src/go-pkcs12` v0.7.3。该版本包含现代算法配置，并修复了 PBMAC1 过短密钥可能导致错误密码被接受的问题。

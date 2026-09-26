@@ -26,9 +26,9 @@
 // SystemRoots、MozillaRoots、SystemAndMozillaRoots 和 CustomRoots 构造独立信任库。
 // MozillaRoots 使用内嵌的 Mozilla 根集合及其约束，不修改进程级根证书配置。
 //
-// InspectTLS 按指定版本分别建立 TLS 连接，支持 TLS 1.0、1.1、1.2 和 1.3，报告
-// SNI、协商参数、服务端证书、主机名、信任链、链完整性及 stapled OCSP。TLS 国密
-// 协议不在当前支持范围内。
+// InspectTLS 按指定版本分别建立连接，支持显式探测 TLCP 1.1 以及 TLS 1.0、1.1、
+// 1.2 和 1.3，报告 SNI、协商参数、服务端证书、主机名、信任链、链完整性及
+// stapled OCSP。TLCP 会收集并验证服务端签名证书和加密证书。
 //
 // 安装：
 //

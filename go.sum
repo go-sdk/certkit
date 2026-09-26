@@ -1,7 +1,11 @@
+gitee.com/Trisia/gotlcp v1.5.0 h1:Q5ZCrSRqjVv+65/ekNDU0NVNPSWVSdNlko47U7Xbfl4=
+gitee.com/Trisia/gotlcp v1.5.0/go.mod h1:H536xhflfRmKXO4uU9TlvZ/gQl3q2ptQJVH7NhmoXQQ=
+github.com/brianvoe/gofakeit/v7 v7.17.1 h1:50FLBhTGVJQaj6ysRUu0it8wCdYO2uGM9VfuxI+csEc=
+github.com/brianvoe/gofakeit/v7 v7.17.1/go.mod h1:QXuPeBw164PJCzCUZVmgpgHJ3Llj49jSLVkKPMtxtxA=
 github.com/emmansun/gmsm v0.44.1 h1:zDTkdtLWFG0vCbhPV+k9pte14tix/eK71At9Iai9fP4=
 github.com/emmansun/gmsm v0.44.1/go.mod h1:p6RIUta0/KboFHrOxr1x8q+pd8RZtdaTO7XNp0RmMQM=
-github.com/go-sdk/core v1.5.4 h1:1FI+iC/6LrOD6GRbGjMa6Aqnph0xExddNnrWCyQeD1o=
-github.com/go-sdk/core v1.5.4/go.mod h1:xxWmM4yoJ7hpm1h56aqLTleMpSidRrwBXEPbOSfz4Pc=
+github.com/go-sdk/core v1.6.0 h1:YAJCXX+bLRf87Ev+2siN32fsKDqPtfK3uXg3Y+H9ODc=
+github.com/go-sdk/core v1.6.0/go.mod h1:OXgs/9i8lumg0vy8Cuz929CD24XNT6uNt7drKeZI6cs=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=

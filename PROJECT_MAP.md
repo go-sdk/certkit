@@ -28,7 +28,7 @@ certkit/
 ├── open_*.go                        PEM、DER、PKCS7、PKCS12、JKS 解析
 ├── password.go                      容器和私钥密码选择
 ├── roots.go                         系统、Mozilla 和自定义信任根
-├── tls.go                           TLS 1.0–1.3 分版本探测
+├── tls.go                           TLCP 1.1 和 TLS 1.0–1.3 分版本探测
 ├── *_test.go                        本地确定性单元测试
 ├── network_*_test.go                显式公网证书和格式互操作测试
 ├── internal/ber/                    Mozilla PKCS7 BER 转换器及本地边界修复
@@ -86,18 +86,20 @@ CheckCRL / CheckOCSP
 
 ```text
 InspectTLS(ctx, address, TLSOptions)
-    -> TLS 1.0、1.1、1.2、1.3 分别固定 MinVersion/MaxVersion
+    -> 显式 TLCP 1.1 或 TLS 1.0、1.1、1.2、1.3 分别固定版本
     -> 使用 SNI 收集服务端证书和 stapled OCSP
     -> smx509 执行主机名及信任链验证
     -> 每个版本返回独立 TLSVersionResult
 ```
 
 证书收集握手使用 `InsecureSkipVerify`，但握手成功不代表验证成功。最终结果中的 `HostnameValid`、`Trusted` 和 `ServedChainComplete` 来自独立的手工验证。
+TLCP 返回的签名证书和加密证书均执行主机名及信任链验证，证书库按签名证书、加密证书和后续证书链的服务端消息顺序保存。
 
 ## 主要依赖关系
 
 ```text
 certkit ──> core/errx
+        ├─> Trisia/gotlcp       TLCP 1.1 握手和 SNI
         ├─> emmansun/gmsm        RSA、ECDSA、SM2 X.509、PKCS7、PKCS8
         ├─> sslmate/go-pkcs12    标准 PKCS12
         ├─> keystore-go          JKS
@@ -120,7 +122,7 @@ internal/pkcs12 ──> emmansun/go-pkcs12 v0.4.2
 
 - `ca_chain_test.go` 覆盖 RSA、ECDSA、SM2 签发、交叉签名、多路径建链、CRL 和 OCSP。
 - `formats_test.go` 覆盖 PEM、DER、PKCS7、PKCS12、JKS、密码错误部分结果和不支持格式。
-- `tls_test.go` 使用本地 TLS 服务覆盖分版本握手、SNI 和服务端链完整性。
+- `tls_test.go` 使用本地 TLS/TLCP 服务覆盖分版本握手、SNI、双证书和服务端链完整性。
 - `network_test.go` 仅在显式设置 `CERTKIT_NETWORK_TESTS=1` 时访问公开 CA 测试站点。
 - `network_certificate_test.go` 下载 CA 官方 PEM/DER、NuGet PKCS7 和 Sigstore 代码签名证书，并使用公开证书验证 PKCS12/JKS truststore。
 - `network_format_test.go` 验证 badssl 公开 PEM/PFX 和固定版本 Java JKS 样本，不把样本内容写入仓库或测试日志。

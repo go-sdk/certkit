@@ -21,9 +21,9 @@ go get github.com/go-sdk/certkit
 | 输出格式 | PEM、DER、PKCS7、PKCS12/PFX、JKS                         |
 | CA       | 自签根 CA、中间 CA、终端证书、PKCS#10 CSR 签发、CRL 生成 |
 | 吊销检查 | CRL、OCSP、TLS stapled OCSP，包括 SM2 签名验证           |
-| TLS 探测 | TLS 1.0、1.1、1.2、1.3 独立握手和证书链验证              |
+| TLS 探测 | TLCP 1.1、TLS 1.0、1.1、1.2、1.3 独立握手和证书链验证    |
 
-JCEKS 和 BKS 只进行格式识别，解析和输出返回 `ErrUnsupportedFormat`。TLS 国密协议暂不支持；SM2 证书本身仍可解析、签发和执行 CRL/OCSP 验证。
+JCEKS 和 BKS 只进行格式识别，解析和输出返回 `ErrUnsupportedFormat`。TLCP 1.1（也称 GMSSL）支持携带 SNI 获取服务端签名证书、加密证书和证书链；SM2 证书也可独立解析、签发和执行 CRL/OCSP 验证。
 
 ## 打开和合并文件
 
@@ -208,6 +208,22 @@ report, err := certkit.InspectTLS(
 
 每个 TLS 版本使用独立连接，并把 `MinVersion` 和 `MaxVersion` 固定为同一版本。握手成功、主机名匹配、信任链验证、服务端发送链完整性、根证书是否被多余发送以及 stapled OCSP 分别报告。根证书无需由服务端发送。
 
+TLCP 1.1 必须显式加入版本列表，不会改变默认只探测 TLS 1.0–1.3 的行为：
+
+```go
+report, err := certkit.InspectTLS(
+	ctx,
+	"192.0.2.10:443",
+	certkit.TLSOptions{
+		ServerName: "example.com",
+		Versions:   []certkit.TLSVersion{certkit.TLCP11},
+		Roots:      roots,
+	},
+)
+```
+
+TLCP ClientHello 会携带 `ServerName` 对应的 SNI。`PeerCertificates.Certificates` 按服务端消息顺序保存证书：第一个是签名证书，第二个是加密证书，其余为证书链；主机名和信任链验证同时覆盖两张叶子证书。
+
 TLS 1.0/1.1 结果表示使用当前 Go 密码套件策略能否完成握手。库不会修改进程级 `GODEBUG` 来重新启用旧密码套件。
 
 ## 测试
@@ -218,7 +234,7 @@ TLS 1.0/1.1 结果表示使用当前 Go 密码套件策略能否完成握手。�
 make test
 ```
 
-它覆盖 RSA、ECDSA、SM2 CA 签发，交叉签名和多路径建链，PEM、DER、PKCS7、PKCS12、JKS 往返，密码错误的部分结果，CRL、OCSP、过期证书以及 TLS SNI 和不完整链检测。
+它覆盖 RSA、ECDSA、SM2 CA 签发，交叉签名和多路径建链，PEM、DER、PKCS7、PKCS12、JKS 往返，密码错误的部分结果，CRL、OCSP、过期证书以及 TLS/TLCP SNI 和不完整链检测。
 
 公网互操作测试默认跳过，需要显式启用：
 
