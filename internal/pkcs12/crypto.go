@@ -333,6 +333,7 @@ func makePBES2Parameters(prf, encryptionScheme asn1.ObjectIdentifier, rand io.Re
 	}
 	kdfparams.Iterations = iterations
 	kdfparams.Prf.Algorithm = prf
+	kdfparams.Prf.Parameters = asn1.NullRawValue
 
 	var params pbes2Params
 	params.Kdf.Algorithm = oidPBKDF2
