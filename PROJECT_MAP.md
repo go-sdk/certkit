@@ -62,8 +62,9 @@ Store.Encode(format, EncodeOptions)
     -> 编码数据和 ConversionReport
 ```
 
-- 标准 PKCS12 使用 SSLMate 的安全修复版本和 `Modern2026`。
-- 国密 PKCS12 使用 emmansun 的 SM2/SM3/SM4 实现。
+- 标准 PKCS12 使用 SSLMate 的安全修复版本，默认保持 `Modern2026`，可显式选择 `Modern2023`、`Modern2026`、`LegacyRC2` 或 `LegacyDES`。
+- 国密 PKCS12 使用 emmansun 的 SM2/SM3/SM4 实现，保持 `ShangMi2024`。
+- `encode_pkcs12.go` 集中选择私钥库及信任库的算法；`PKCS12Iterations` 可覆盖标准和国密输出的派生次数，`0` 保留各自默认值，完整契约见 [README.md](README.md#pkcs12-算法配置)。
 - JKS 私钥始终写成 PKCS#8，证书类型写成 `X.509`。
 - PKCS7 只承载证书集合。
 

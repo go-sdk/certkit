@@ -17,6 +17,8 @@
 // Store.Encode 输出 PEM、DER、PKCS7、PKCS12 或 JKS。PKCS12 和 JKS 不设置默认
 // 输出密码，调用方必须通过 EncodeOptions 显式传入。可能丢弃证书或私钥的转换默认
 // 返回 ErrLossyConversion，只有明确设置 AllowLossy 后才会执行。
+// PKCS12Profile 显式选择固定算法配置；PKCS12Iterations 为 0 时保留配置默认值，
+// 正数同时覆盖加密和 MAC 的派生次数，负数返回 ErrInvalidData。
 //
 // CreateRootCA、IssueCertificate、CreateCertificateRequest 和
 // SignCertificateRequest 支持 RSA、ECDSA 和 SM2，可构造根 CA、中间 CA、终端证书

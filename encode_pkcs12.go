@@ -14,7 +14,13 @@ func (s *Store) encodePKCS12(options EncodeOptions, report *ConversionReport) ([
 	if len(options.Password) == 0 {
 		return nil, ErrPassword
 	}
-	if options.PKCS12Profile != "" && options.PKCS12Profile != PKCS12ProfileModern && options.PKCS12Profile != PKCS12ProfileLegacy && options.PKCS12Profile != PKCS12ProfileShangMi {
+	if options.PKCS12Iterations < 0 {
+		return nil, errx.Wrap(ErrInvalidData, "pkcs12 iterations must not be negative")
+	}
+	switch options.PKCS12Profile {
+	case "", PKCS12ProfileModern, PKCS12ProfileLegacy, PKCS12ProfileShangMi,
+		PKCS12ProfileModern2023, PKCS12ProfileModern2026, PKCS12ProfileLegacyRC2, PKCS12ProfileLegacyDES:
+	default:
 		return nil, errx.Wrapf(ErrInvalidData, "unknown pkcs12 profile %q", options.PKCS12Profile)
 	}
 	entries := s.privateKeyEntries(options.Alias)
@@ -38,10 +44,7 @@ func (s *Store) encodePKCS12(options EncodeOptions, report *ConversionReport) ([
 			trustEntries = append(trustEntries, sslmatepkcs12.TrustStoreEntry{Cert: standardCert, FriendlyName: alias})
 			report.Aliases = append(report.Aliases, alias)
 		}
-		encoder := sslmatepkcs12.Modern2026
-		if options.PKCS12Profile == PKCS12ProfileLegacy {
-			encoder = sslmatepkcs12.Legacy
-		}
+		encoder := standardPKCS12Encoder(options)
 		data, err := encoder.EncodeTrustStoreEntries(trustEntries, string(options.Password))
 		if err != nil {
 			return nil, errx.Wrap(err, "encode pkcs12 trust store")
@@ -66,7 +69,7 @@ func (s *Store) encodePKCS12(options EncodeOptions, report *ConversionReport) ([
 	var data []byte
 	var err error
 	if options.PKCS12Profile == PKCS12ProfileShangMi {
-		data, err = pkcs12.ShangMi2024.Encode(entry.PrivateKey.Signer, entry.Chain[0].Certificate, chain, string(options.Password))
+		data, err = shangMiPKCS12Encoder(options).Encode(entry.PrivateKey.Signer, entry.Chain[0].Certificate, chain, string(options.Password))
 	} else {
 		standardLeaf, parseErr := x509.ParseCertificate(entry.Chain[0].Certificate.Raw)
 		if parseErr != nil {
@@ -80,10 +83,7 @@ func (s *Store) encodePKCS12(options EncodeOptions, report *ConversionReport) ([
 			}
 			standardChain = append(standardChain, standardCert)
 		}
-		encoder := sslmatepkcs12.Modern2026
-		if options.PKCS12Profile == PKCS12ProfileLegacy {
-			encoder = sslmatepkcs12.Legacy
-		}
+		encoder := standardPKCS12Encoder(options)
 		data, err = encoder.Encode(entry.PrivateKey.Signer, standardLeaf, standardChain, string(options.Password))
 	}
 	if err != nil {
@@ -110,10 +110,36 @@ func (s *Store) encodeShangMiPKCS12TrustStore(options EncodeOptions, report *Con
 		entries = append(entries, pkcs12.TrustStoreEntry{Cert: cert.Certificate, FriendlyName: alias})
 		report.Aliases = append(report.Aliases, alias)
 	}
-	data, err := pkcs12.ShangMi2024.EncodeTrustStoreEntries(entries, string(options.Password))
+	data, err := shangMiPKCS12Encoder(options).EncodeTrustStoreEntries(entries, string(options.Password))
 	if err != nil {
 		return nil, errx.Wrap(err, "encode shangmi pkcs12 trust store")
 	}
 	report.CertificatesWritten = len(s.Certificates)
 	return data, nil
+}
+
+// standardPKCS12Encoder 统一私钥库和信任库的算法选择；配置已在编码入口校验。
+func standardPKCS12Encoder(options EncodeOptions) *sslmatepkcs12.Encoder {
+	encoder := sslmatepkcs12.Modern2026
+	switch options.PKCS12Profile {
+	case PKCS12ProfileModern2023:
+		encoder = sslmatepkcs12.Modern2023
+	case PKCS12ProfileLegacy, PKCS12ProfileLegacyDES:
+		encoder = sslmatepkcs12.LegacyDES
+	case PKCS12ProfileLegacyRC2:
+		encoder = sslmatepkcs12.LegacyRC2
+	}
+	if options.PKCS12Iterations > 0 {
+		// WithIterations 返回副本，不能修改上游共享编码器的配置。
+		encoder = encoder.WithIterations(options.PKCS12Iterations)
+	}
+	return encoder
+}
+
+func shangMiPKCS12Encoder(options EncodeOptions) *pkcs12.Encoder {
+	encoder := pkcs12.ShangMi2024
+	if options.PKCS12Iterations > 0 {
+		encoder = encoder.WithIterations(options.PKCS12Iterations)
+	}
+	return encoder
 }

@@ -19,6 +19,11 @@ certkit 仅使用其客户端握手和连接状态，不依赖内部协议结构
 
 标准 RSA 和 ECDSA PKCS12 使用 `software.sslmate.com/src/go-pkcs12` v0.7.4。该版本包含现代算法配置、PBMAC1 显式密钥长度校验，以及 PBES2 中 PBKDF2 PRF 的显式 ASN.1 `NULL` 参数编码，避免省略参数导致严格解析器拒绝输出。
 
+标准输出通过 certkit 的 `PKCS12Profile` 映射到上游固定的 `Modern2023`、`Modern2026`、`LegacyRC2` 和 `LegacyDES`。
+默认及现有 `modern` 仍为 `Modern2026`，现有 `legacy` 仍为 `LegacyDES`，不依赖上游可变化的 `Modern`、`Legacy` 别名。
+派生次数覆盖使用上游 `WithIterations` 创建编码器副本；标准和国密输出均不修改共享编码器。
+对外配置及兼容边界集中维护在 [README.md](README.md#pkcs12-算法配置)。
+
 `github.com/emmansun/go-pkcs12` v0.4.2 增加了 SM2、SM3 和 SM4，但与 SSLMate v0.7.3 对比后确认缺少以下输入校验：
 
 - PBMAC1 显式 key length 必须在 20 到 64 字节之间；

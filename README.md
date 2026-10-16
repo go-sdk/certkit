@@ -120,6 +120,36 @@ PKCS12 的 RSA/ECDSA 编解码基于 SSLMate 安全修复版本，默认使用 `
 
 两组上游的差异和本地补丁边界见 [DEPENDENCIES.md](DEPENDENCIES.md)。
 
+### PKCS12 算法配置
+
+通过 `EncodeOptions.PKCS12Profile` 选择固定算法配置，调用方无需直接导入底层 PKCS12 包：
+
+| 配置                      | 证书和私钥保护                       | MAC                     |
+|---------------------------|--------------------------------------|-------------------------|
+| `PKCS12ProfileModern2023` | AES-256、PBKDF2-HMAC-SHA-256         | 传统 PKCS12 SHA-256 MAC |
+| `PKCS12ProfileModern2026` | AES-256、PBKDF2-HMAC-SHA-256         | PBMAC1，要求接收方支持  |
+| `PKCS12ProfileLegacyRC2`  | 证书使用 RC2-40，私钥使用 3DES       | 传统 PKCS12 SHA-1 MAC   |
+| `PKCS12ProfileLegacyDES`  | 证书和私钥使用 3DES                  | 传统 PKCS12 SHA-1 MAC   |
+| `PKCS12ProfileShangMi`    | ShangMi2024，使用 SM2、SM3、SM4 实现 | 基于 SM3 的 PBMAC1      |
+
+空值和现有 `PKCS12ProfileModern` 保持 `Modern2026`，`PKCS12ProfileLegacy` 保持 `LegacyDES`，
+`PKCS12ProfileShangMi` 保持 `ShangMi2024`；不跟随上游 `Modern`、`Legacy` 别名的未来变化。
+旧系统确有需要时显式选择 Legacy 配置；不提供无密码、无加密或无 MAC 的 `Passwordless` 输出。
+
+`PKCS12Iterations` 为 `0` 时保留对应配置的默认派生次数，正数同时覆盖证书加密、私钥加密和 MAC 的派生次数，
+负数返回 `ErrInvalidData`。该参数同时适用于标准和国密 PKCS12 的私钥库与信任库，对其他输出格式不生效。
+覆盖只作用于本次编码，不修改共享编码器。Legacy 默认的加密和 MAC 次数不同，`0` 不会将其统一或重置。
+
+```go
+output, report, err := store.Encode(certkit.FormatPKCS12, certkit.EncodeOptions{
+	Password:         password,
+	PKCS12Profile:    certkit.PKCS12ProfileModern2023,
+	PKCS12Iterations: 10000,
+})
+```
+
+算法配置用于固定输出参数，不代表已经验证特定 Java、OpenSSL 或业务程序的互操作能力。
+
 ## 创建和签发证书
 
 ```go
