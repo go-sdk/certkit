@@ -64,7 +64,7 @@ func SystemAndMozillaRoots() (*TrustStore, error) {
 }
 
 // CustomRoots 使用给定证书创建独立信任库。
-func CustomRoots(certs ...*smx509.Certificate) *TrustStore {
+func CustomRoots(certs ...*X509Certificate) *TrustStore {
 	pool := smx509.NewCertPool()
 	for _, cert := range certs {
 		if cert != nil {
@@ -75,7 +75,7 @@ func CustomRoots(certs ...*smx509.Certificate) *TrustStore {
 }
 
 // Add 将证书加入自定义信任库的首个证书池。
-func (t *TrustStore) Add(cert *smx509.Certificate) {
+func (t *TrustStore) Add(cert *X509Certificate) {
 	if cert == nil {
 		return
 	}

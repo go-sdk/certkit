@@ -29,6 +29,7 @@ certkit/
 ├── password.go                      容器和私钥密码选择
 ├── roots.go                         系统、Mozilla 和自定义信任根
 ├── tls.go                           TLCP 1.1 和 TLS 1.0–1.3 分版本探测
+├── x509.go                          底层证书、用途类型及完整用途常量别名
 ├── *_test.go                        本地确定性单元测试
 ├── network_*_test.go                显式公网证书和格式互操作测试
 ├── internal/ber/                    Mozilla PKCS7 BER 转换器及本地边界修复
@@ -67,6 +68,8 @@ Store.Encode(format, EncodeOptions)
 - `encode_pkcs12.go` 集中选择私钥库及信任库的算法；`PKCS12Iterations` 可覆盖标准和国密输出的派生次数，`0` 保留各自默认值，完整契约见 [README.md](README.md#pkcs12-算法配置)。
 - JKS 私钥始终写成 PKCS#8，证书类型写成 `X.509`。
 - PKCS7 只承载证书集合。
+
+`x509.go` 集中导出 `X509Certificate`、`KeyUsage`、`ExtKeyUsage` 及用途常量，公开模型和方法使用这些别名，内部算法继续复用 `smx509`。类型身份及兼容边界见 [README.md](README.md#x509-公共类型)。
 
 ## CA 和吊销链路
 

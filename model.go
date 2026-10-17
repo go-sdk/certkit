@@ -59,7 +59,7 @@ const (
 // Certificate 保存规范化证书及其稳定标识和来源。
 type Certificate struct {
 	ID          string
-	Certificate *smx509.Certificate
+	Certificate *X509Certificate
 	Role        CertificateRole
 	Source      SourceRef
 }
@@ -116,7 +116,7 @@ func NewStore() *Store {
 }
 
 // NewCertificate 将已解析证书规范化为 Store 使用的模型。
-func NewCertificate(cert *smx509.Certificate) (*Certificate, error) {
+func NewCertificate(cert *X509Certificate) (*Certificate, error) {
 	if cert == nil || len(cert.Raw) == 0 {
 		return nil, errx.Wrap(ErrInvalidData, "certificate is empty")
 	}
@@ -143,7 +143,7 @@ func NewPrivateKey(key crypto.Signer) (*PrivateKey, error) {
 }
 
 // AddCertificate 向 Store 添加证书并重新匹配已有条目。
-func (s *Store) AddCertificate(cert *smx509.Certificate) error {
+func (s *Store) AddCertificate(cert *X509Certificate) error {
 	item, err := NewCertificate(cert)
 	if err != nil {
 		return err
@@ -165,7 +165,7 @@ func (s *Store) AddPrivateKey(key crypto.Signer) error {
 }
 
 // AddKeyPair 使用指定 alias 添加私钥及其有序证书链。
-func (s *Store) AddKeyPair(alias string, key crypto.Signer, chain ...*smx509.Certificate) error {
+func (s *Store) AddKeyPair(alias string, key crypto.Signer, chain ...*X509Certificate) error {
 	alias = strings.TrimSpace(alias)
 	if alias == "" {
 		return errx.Wrap(ErrInvalidData, "alias must not be empty")
@@ -203,7 +203,7 @@ func (s *Store) AddKeyPair(alias string, key crypto.Signer, chain ...*smx509.Cer
 }
 
 // AddTrustedCertificate 使用指定 alias 添加信任证书条目。
-func (s *Store) AddTrustedCertificate(alias string, cert *smx509.Certificate) error {
+func (s *Store) AddTrustedCertificate(alias string, cert *X509Certificate) error {
 	alias = strings.TrimSpace(alias)
 	if alias == "" {
 		return errx.Wrap(ErrInvalidData, "alias must not be empty")

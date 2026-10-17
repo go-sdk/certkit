@@ -150,6 +150,23 @@ output, report, err := store.Encode(certkit.FormatPKCS12, certkit.EncodeOptions{
 
 算法配置用于固定输出参数，不代表已经验证特定 Java、OpenSSL 或业务程序的互操作能力。
 
+## X.509 公共类型
+
+调用方可以直接使用 certkit 的证书类型、用途类型及对应常量，无需为配置用途或声明证书链导入 `smx509`：
+
+```go
+options := certkit.CertificateOptions{
+	KeyUsage:    certkit.KeyUsageDigitalSignature | certkit.KeyUsageKeyEncipherment,
+	ExtKeyUsage: []certkit.ExtKeyUsage{certkit.ExtKeyUsageServerAuth},
+}
+```
+
+- `X509Certificate` 是 `smx509.Certificate` 的类型别名，承载已解析证书字段和证书方法；`Certificate` 是 certkit 的包装模型，额外保存标识、角色和来源，其 `Certificate` 字段指向 `X509Certificate`。
+- `KeyUsage`、`ExtKeyUsage` 分别是 `smx509.KeyUsage`、`smx509.ExtKeyUsage` 的类型别名；全部对应的 `KeyUsage*`、`ExtKeyUsage*` 常量均由 certkit 导出。密钥用途可按位组合，扩展用途通过切片声明。
+- 这些别名与底层类型完全相同，已有 `smx509` 调用方继续兼容，无需转换；它们不是标准库 `crypto/x509` 类型的别名。底层证书字段仍沿用上游定义，certkit 不复制其实现。
+
+例如，验证选项的中间证书链可声明为 `[]*certkit.X509Certificate`，用途可声明为 `[]certkit.ExtKeyUsage`。
+
 ## 创建和签发证书
 
 ```go

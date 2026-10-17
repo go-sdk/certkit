@@ -96,7 +96,7 @@ func CreateCRL(issuer *Entry, options CreateCRLOptions) ([]byte, error) {
 }
 
 // CheckCRL 在本地解析并验证 CRL，不访问网络。
-func CheckCRL(cert, issuer *smx509.Certificate, data []byte, options CRLOptions) (*CRLResult, error) {
+func CheckCRL(cert, issuer *X509Certificate, data []byte, options CRLOptions) (*CRLResult, error) {
 	if cert == nil || issuer == nil {
 		return nil, errx.Wrap(ErrInvalidData, "certificate and issuer are required")
 	}
@@ -137,7 +137,7 @@ func CheckCRL(cert, issuer *smx509.Certificate, data []byte, options CRLOptions)
 }
 
 // FetchAndCheckCRL 获取证书首个 CRL 地址并验证响应。
-func FetchAndCheckCRL(ctx context.Context, client *http.Client, cert, issuer *smx509.Certificate, options CRLOptions) (*CRLResult, error) {
+func FetchAndCheckCRL(ctx context.Context, client *http.Client, cert, issuer *X509Certificate, options CRLOptions) (*CRLResult, error) {
 	if cert == nil || len(cert.CRLDistributionPoints) == 0 {
 		return nil, errx.Wrap(ErrInvalidData, "certificate has no crl distribution point")
 	}

@@ -40,8 +40,8 @@ type CertificateOptions struct {
 	IsCA           bool
 	MaxPathLen     int
 	MaxPathLenZero bool
-	KeyUsage       smx509.KeyUsage
-	ExtKeyUsage    []smx509.ExtKeyUsage
+	KeyUsage       KeyUsage
+	ExtKeyUsage    []ExtKeyUsage
 	SerialNumber   *big.Int
 	Key            KeyOptions
 }

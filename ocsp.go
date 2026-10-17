@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/emmansun/gmsm/smx509"
 	"github.com/go-sdk/core/errx"
 
 	internalocsp "github.com/go-sdk/certkit/internal/ocsp"
@@ -35,7 +34,7 @@ type OCSPResult struct {
 }
 
 // CheckOCSP 在本地解析并验证指定证书的 OCSP 响应。
-func CheckOCSP(cert, issuer *smx509.Certificate, data []byte, options OCSPOptions) (*OCSPResult, error) {
+func CheckOCSP(cert, issuer *X509Certificate, data []byte, options OCSPOptions) (*OCSPResult, error) {
 	response, err := internalocsp.ParseResponseForCert(data, cert, issuer)
 	if err != nil {
 		return nil, errx.Wrap(err, "parse ocsp response")
@@ -60,7 +59,7 @@ func CheckOCSP(cert, issuer *smx509.Certificate, data []byte, options OCSPOption
 }
 
 // FetchAndCheckOCSP 向证书首个 OCSP 地址发起请求并验证响应。
-func FetchAndCheckOCSP(ctx context.Context, client *http.Client, cert, issuer *smx509.Certificate, options OCSPOptions) (*OCSPResult, error) {
+func FetchAndCheckOCSP(ctx context.Context, client *http.Client, cert, issuer *X509Certificate, options OCSPOptions) (*OCSPResult, error) {
 	if cert == nil || len(cert.OCSPServer) == 0 {
 		return nil, errx.Wrap(ErrInvalidData, "certificate has no ocsp responder")
 	}

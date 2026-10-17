@@ -9,22 +9,22 @@ import (
 // VerifyOptions 配置证书链、主机名和验证时间。
 type VerifyOptions struct {
 	Roots         *TrustStore
-	Intermediates []*smx509.Certificate
+	Intermediates []*X509Certificate
 	DNSName       string
 	CurrentTime   time.Time
-	KeyUsages     []smx509.ExtKeyUsage
+	KeyUsages     []ExtKeyUsage
 }
 
 // VerifyResult 保存证书链和主机名验证结果。
 type VerifyResult struct {
 	Trusted       bool
 	HostnameValid bool
-	Chains        [][]*smx509.Certificate
+	Chains        [][]*X509Certificate
 	Error         error
 }
 
 // VerifyCertificate 使用指定信任根和中间证书验证证书。
-func VerifyCertificate(cert *smx509.Certificate, options VerifyOptions) VerifyResult {
+func VerifyCertificate(cert *X509Certificate, options VerifyOptions) VerifyResult {
 	result := VerifyResult{HostnameValid: options.DNSName == ""}
 	if cert == nil {
 		result.Error = ErrNoCertificate
