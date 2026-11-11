@@ -33,7 +33,7 @@ certkit 仅使用其客户端握手和连接状态，不依赖内部协议结构
 
 ## PKCS7
 
-`github.com/mozilla-services/pkcs7` v0.10.0 使用标准库 `crypto/x509`，不支持 SM2 证书。`github.com/emmansun/gmsm/pkcs7` v0.45.0 以同一实现谱系为基础，改用 `smx509` 并补充 SM2 等算法，所以解析和输出选择
+`github.com/mozilla-services/pkcs7` v0.10.0 使用标准库 `crypto/x509`，不支持 SM2 证书。`github.com/emmansun/gmsm/pkcs7` v0.45.3 以同一实现谱系为基础，改用 `smx509` 并补充 SM2 等算法，所以解析和输出选择
 gmsm。
 
 两者的 PKCS7 入口都会先把 BER 转为 DER。gmsm v0.45.0 已补充高位标签和长度字段的部分越界检查，但上游转换器仍未完整拒绝尾随数据，也未限制 ASN.1 嵌套深度。`internal/ber` 因此在调用 gmsm 前执行以下限制：
@@ -46,6 +46,10 @@ gmsm。
 该层只负责 BER 边界校验和 DER 规范化，PKCS7/CMS 的 OID、证书和算法语义仍由 gmsm 处理。
 
 `internal/ber` 基于 Mozilla PKCS7 v0.10.0 的 `ber.go`，具体本地修改和升级检查范围见 `internal/ber/UPSTREAM.md`。
+
+## 证书链验证
+
+Mozilla 根集合随 `x509roots/fallback` 更新。`smx509.Verify` 会滤除包含上游不信任公钥的证书链；即使将相关证书显式加入自定义根库，也不能绕过该限制。
 
 ## OCSP
 
