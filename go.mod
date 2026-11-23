@@ -3,7 +3,7 @@ module github.com/go-sdk/certkit
 go 1.27.0
 
 require (
-	gitee.com/Trisia/gotlcp v1.6.2
+	gitee.com/Trisia/gotlcp v1.6.3
 	github.com/emmansun/gmsm v0.45.3
 	github.com/go-sdk/core v1.6.9
 	github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0
